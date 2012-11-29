@@ -5,7 +5,7 @@
  *
  * The followings are the available columns in table 'test_message':
  * @property int $id
- * @property int $group
+ * @property int $grp
  * @property text $content
  * @property date $created
  */

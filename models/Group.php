@@ -5,7 +5,7 @@
  *
  * The followings are the available columns in table 'test_group':
  * @property integer $id
- * @property integer $group
+ * @property integer $grp
  * @property integer $user
  */
 class Group extends CActiveRecord

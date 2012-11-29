@@ -72,14 +72,14 @@ class MessagingModule extends CWebModule
          */
         public function openedGroups() {
             $criteria = new CDbCriteria;
-            $criteria->select="t2.user, t2.group";
+            $criteria->select="t2.user, t2.grp";
             $criteria->condition="t.user = :user AND t2.user <> :user";
             $criteria->params=array(":user"=>$this->user->id);
-            $criteria->join='JOIN '.Group::model()->tableName().' t2 ON t.group=t2.group';
+            $criteria->join='JOIN '.Group::model()->tableName().' t2 ON t.grp=t2.grp';
             $groups=Group::model()->findAll($criteria);
             $usergroups=array();
             foreach($groups as $group) {
-                $usergroups[$group->group][]=$group->user;
+                $usergroups[$group->grp][]=$group->user;
             }
             return $usergroups;
         }
@@ -121,7 +121,7 @@ class MessagingModule extends CWebModule
                 Yii::app()->db->createCommand("LOCK TABLES ".Group::model()->tableName()." WRITE")->execute();
                 try
                 {
-                    $firstGroup->group=$this->findLastGroup()+1;
+                    $firstGroup->grp=$this->findLastGroup()+1;
                     $firstGroup->user=$this->user->id;
                     $firstGroup->save();
                     $transaction->commit();
@@ -135,10 +135,10 @@ class MessagingModule extends CWebModule
                 Yii::app()->db->createCommand("UNLOCK TABLES")->execute();
 
                 foreach($ids as $id) {
-                    $this->addToGroup($firstGroup->group, $id);
+                    $this->addToGroup($firstGroup->grp, $id);
                 }
 
-                return $firstGroup->group;
+                return $firstGroup->grp;
             }
             else return $group;
         }
@@ -148,7 +148,7 @@ class MessagingModule extends CWebModule
          * @return type
          */
         private function findLastGroup() {
-            return Yii::app()->db->createCommand("SELECT MAX(`group`) as `max` FROM `".Group::model()->tableName()."` WHERE 1")->queryScalar();
+            return Yii::app()->db->createCommand("SELECT MAX(`grp`) as `max` FROM `".Group::model()->tableName()."` WHERE 1")->queryScalar();
         }
 
         /**
@@ -158,20 +158,19 @@ class MessagingModule extends CWebModule
          */
         private function addToGroup($group, $id) {
             $newGroup=new Group();
-            $newGroup->group=$group;
+            $newGroup->grp=$group;
             $newGroup->user=$id;
             $newGroup->save();
         }
 
         /**
          * Returns true if the user has unread messages
-         * (Maybe later add 'updated' table for each group the user has seperately for efficiency, test which way is better)
          */
         public function isUnread() {
             $updated=MessagesUpdated::model()->findByPk($this->user->id);
             return $updated!=null?$updated->updated:false;
         }
-
+        
         /**
          * Sets the updated field for a user
          * @param type $user
@@ -186,6 +185,52 @@ class MessagingModule extends CWebModule
             $updated->updated=$unread?1:0;
             $updated->save();
         }
+        
+        /**
+         * Returns true if the user has unread messages in a certain group
+         */
+        public function isUnreadGroup($group) {
+            $criteria = new CDbCriteria;
+            $criteria->condition="grp=:group AND user=:user";
+            $criteria->params=array(":group"=>$group, ":user"=>$this->user->id);
+            $updated=MessagesUpdatedGroup::model()->find($criteria);
+            return $updated!=null?$updated->updated:false;
+        }
+        
+        /**
+         * Returns all group id's (array) that contain unread messages.
+         */
+        public function getUnreadGroups() {
+            $criteria = new CDbCriteria;
+            $criteria->condition="user=:user";
+            $criteria->params=array(":user"=>$this->user->id);
+            $groups=MessagesUpdatedGroup::model()->findAll($criteria);
+            $ids=array();
+            foreach($groups as $group) {
+                $ids[]=$group->grp;
+            }
+            return $ids;
+        }
+        
+        /**
+         * Sets the updated field for a user in a group
+         * @param type $user
+         * @param type $group
+         * @param type $unread (default: sets to unread)
+         */
+        public function setUnreadGroup($user, $group, $unread=true) {
+            $criteria = new CDbCriteria;
+            $criteria->condition="grp=:group AND user=:user";
+            $criteria->params=array(":group"=>$group, ":user"=>$this->user->id);
+            $updated=MessagesUpdatedGroup::model()->find($criteria);
+            if(!$updated) {
+                $updated=new MessagesUpdatedGroup();
+                $updated->user=$user;
+                $updated->grp->$group;
+            }
+            $updated->updated=$unread?1:0;
+            $updated->save();
+        }
 
         /**
          * Sends a message to a group and notifies all those users
@@ -194,16 +239,17 @@ class MessagingModule extends CWebModule
          */
         public function sendMessage($group, $content) {
             $message=new Message();
-            $message->group=$group;
+            $message->grp=$group;
             $message->content=$content;
             $message->save();
             //SET UNREAD ON GROUP MEMBERS (EXCEPT FOR SENDER)
             $criteria = new CDbCriteria;
-            $criteria->condition="group = :group and user <> :user";
+            $criteria->condition="grp = :group and user <> :user";
             $criteria->params=array(":group"=>$group, ":user"=>$this->user->id);
             $groupUsers=Group::model()->findall();
             foreach($groupUsers as $user) {
                 $this->setUnread($user->user);
+                $this->setUnreadGroup($user->user,$group);
             }
         }
 

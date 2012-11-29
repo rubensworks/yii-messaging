@@ -1,13 +1,15 @@
 <?php
 
 /**
- * This is the model class for table "test_messages_updated_user".
+ * This is the model class for table "test_messages_updated_group".
  *
- * The followings are the available columns in table 'test_messages_updated_user':
+ * The followings are the available columns in table 'test_messages_updated_group':
+ * @property integer $id
  * @property integer $user
+ * @property integer $grp
  * @property integer $updated
  */
-class MessagesUpdated extends CActiveRecord
+class MessagesUpdatedGroup extends CActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.
@@ -23,7 +25,7 @@ class MessagesUpdated extends CActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'test_messages_updated_user';
+		return 'test_messages_updated_group';
 	}
 
 	/**
@@ -32,7 +34,9 @@ class MessagesUpdated extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
+                        'id' => Yii::t('form', 'ID: '),
                         'user' => Yii::t('form', 'User: '),
+                        'grp' => Yii::t('form', 'Group: '),
 			'updated' => Yii::t('form', 'Updated: '),
 		);
 	}
