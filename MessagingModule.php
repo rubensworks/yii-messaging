@@ -110,6 +110,8 @@ class MessagingModule extends CWebModule
          * @param type $ids
          */
         public function openGroup($ids) {
+            if(in_array($this->user->id,$ids))//You can not open a chat with yourself!
+                return false;
             if(empty($ids) || !$ids)
                 return null;
             $group=$this->groupExists($ids);
@@ -221,12 +223,12 @@ class MessagingModule extends CWebModule
         public function setUnreadGroup($user, $group, $unread=true) {
             $criteria = new CDbCriteria;
             $criteria->condition="grp=:group AND user=:user";
-            $criteria->params=array(":group"=>$group, ":user"=>$this->user->id);
+            $criteria->params=array(":group"=>$group, ":user"=>$user);
             $updated=MessagesUpdatedGroup::model()->find($criteria);
             if(!$updated) {
                 $updated=new MessagesUpdatedGroup();
                 $updated->user=$user;
-                $updated->grp->$group;
+                $updated->grp=$group;
             }
             $updated->updated=$unread?1:0;
             $updated->save();
@@ -246,7 +248,7 @@ class MessagingModule extends CWebModule
             $criteria = new CDbCriteria;
             $criteria->condition="grp = :group and user <> :user";
             $criteria->params=array(":group"=>$group, ":user"=>$this->user->id);
-            $groupUsers=Group::model()->findall();
+            $groupUsers=Group::model()->findall($criteria);
             foreach($groupUsers as $user) {
                 $this->setUnread($user->user);
                 $this->setUnreadGroup($user->user,$group);
