@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Yii-messaging : A Yii plugin that allows you to easily create a messaging/chat functionality into your existing User-based application." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Yii-messaging</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/rubensworks/yii-messaging">View on GitHub</a>
+
+          <h1 id="project_title">Yii-messaging</h1>
+          <h2 id="project_tagline">A Yii plugin that allows you to easily create a messaging/chat functionality into your existing User-based application.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/rubensworks/yii-messaging/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/rubensworks/yii-messaging/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>Messaging</h1>
+
+<p>A Yii plugin that allows you to easily create a messaging/chat functionality into your 
+existing User-based application.</p>
+
+<h2>Installation</h2>
+
+<p>TODO
+Unpack to <code>protected/extensions/</code>. Add the following to your <code>protected/config/main.php</code>:</p>
+
+<pre><code>&lt;?php
+return array(
+    // …
+    'modules'=&gt;array(
+                ...
+        'messaging'=&gt;array(
+                'class'=&gt;'ext.messaging.MessagingModule',
+                'userModel'=&gt;'[YOUR USER MODEL]',
+                'getNameMethod'=&gt;'[METHOD TO GET THE USER NAME IN THE USER MODEL]',
+                'isOnlineMethod'=&gt;'[METHOD TO CHECK IF THE USER IS ONLINE IN THE USER MODEL]',
+            ),
+        ),
+                ...
+);
+</code></pre>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Yii-messaging maintained by <a href="https://github.com/rubensworks">rubensworks</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
