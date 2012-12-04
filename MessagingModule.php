@@ -23,6 +23,8 @@ class MessagingModule extends CWebModule
 	{
             //TMP
             $this->user=User::model()->findByPk(3);
+            
+            $this->defaultController='message';
 
             if (!$this->userModel)
                 throw new Exception(MessagingModule::t("Property Messaging::{userModel} not defined", array('{userModel}' => $this->userModel)));
@@ -39,9 +41,14 @@ class MessagingModule extends CWebModule
 
             $this->setImport(array(
                     'messaging.models.*',
+                    'messaging.components.*',
+                    'messaging.controllers.*',
+                    'messaging.views.*',
             ));
 
             Yii::log("MessagingModule succesfully loaded.", "info", "MessagingModule");
+            
+            parent::init();
 	}
 
 	public function beforeControllerAction($controller, $action)
@@ -60,6 +67,7 @@ class MessagingModule extends CWebModule
             } else {
                     return false;
             }*/
+            return parent::beforeControllerAction($controller,$action);
 	}
 
 	public static function t($str='',$params=array(),$dic='message') {
@@ -83,8 +91,17 @@ class MessagingModule extends CWebModule
             }
             return $usergroups;
         }
-
-
+        
+        /**
+         * Check if this user is in this group
+         */
+        public function hasGroup($grp) {
+            $criteria = new CDbCriteria;
+            $criteria->condition="user = :user AND grp = :grp";
+            $criteria->params=array(":user"=>$this->user->id,":grp"=>$grp);
+            $group=Group::model()->find($criteria);
+            return $group!=NULL;
+        }
 
         /**
          * Check if a group with exactly those members (and myself) exists in the given usergroups from a user (result from openedGroups())

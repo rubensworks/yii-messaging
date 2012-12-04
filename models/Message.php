@@ -34,13 +34,24 @@ class Message extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('content', 'required'),
+			array('grp, content', 'required'),
 			array('content', 'length', 'max'=>512),
                         array('created','default',
                             'value'=>time(),
                             'setOnEmpty'=>false,'on'=>'insert')
 		);
 	}
+        
+        public function beforeSave() {
+            return parent::beforeSave();
+        }
+        
+        public function beforeValidate() {
+            if(!Yii::app()->getModule('messaging')->hasGroup($this->grp)) {
+                $this->addError('grp', 'You are not part of this group.');
+            }
+            return parent::beforeValidate();
+        }
 
 	/**
 	 * @return array customized attribute labels (name=>label)
@@ -49,8 +60,9 @@ class Message extends CActiveRecord
 	{
 		return array(
 			'id' => Yii::t('Message','id'),
-			'content' => Yii::t('Message','content'),
-			'read' => Yii::t('Message','read'),
+                        'grp' => Yii::t('Message','Group'),
+			'content' => Yii::t('Message','Content'),
+			'created' => Yii::t('Message','Created'),
 		);
 	}
 }
