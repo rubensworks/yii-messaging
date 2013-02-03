@@ -1,28 +1,68 @@
 Messaging
 ===========
 
-A Yii plugin that allows you to easily create a messaging/chat functionality into your 
-existing User-based application.
+A Yii plugin that allows you to easily create a messaging/chat functionality
+into your existing User-based application.
+The controller, widget and view are included, but not sufficiently tested. So
+it's not advised to use these, but they can be used as reference to build
+something with. These might get updated sometime, or not, we'll see...
 
 Installation
 ------------
 
-TODO
 Unpack to `protected/extensions/`. Add the following to your `protected/config/main.php`:
 
 ~~~
 <?php
+...
 return array(
-	// …
+	...
 	'modules'=>array(
                 ...
 		'messaging'=>array(
 				'class'=>'ext.messaging.MessagingModule',
-				'userModel'=>'[YOUR USER MODEL]',
-				'getNameMethod'=>'[METHOD TO GET THE USER NAME IN THE USER MODEL]',
-				'isOnlineMethod'=>'[METHOD TO CHECK IF THE USER IS ONLINE IN THE USER MODEL]',
+				'userModel'=>'User',
 			),
 		),
                 ...
 );
+...
+?>
+~~~
+The only requirement for the User model is that is has a valid 'id' field that is in fact unique.
+
+Example code
+------------
+~~~
+<?php
+...
+//makes a new group based on an array of user id's (or opens an existing one)
+$newgroup=Yii::app()->getModule('messaging')->openGroup(array(1,2));
+
+//check if you have unread messages
+Yii::app()->getModule('messaging')->isUnread();
+//check if you have unread messages in a group
+Yii::app()->getModule('messaging')->isUnreadGroup($newgroup);
+
+//send a new message to the group
+Yii::app()->getModule('messaging')->sendMessage($newgroup,"test");
+//check this groups messages as 'read'
+Yii::app()->getModule('messaging')->readGroup($newgroup);
+
+//get all your unread groups
+$unreadgroups=Yii::app()->getModule('messaging')->getUnreadGroups();
+//get all your groups
+$allgroups=Yii::app()->getModule('messaging')->openedGroups();
+
+//easy to loop over the groups and messages
+foreach($allgroups as $group) {
+
+    //gets the messages of a group
+    $messages=Yii::app()->getModule('messaging')->getMessages($group);
+    foreach($messages as $message) {
+        echo $message->grp.":".$message->content.Yii::app()->getModule('messaging')->isUnreadGroup($group)?" [Unread] ":"[_]"."<br />";
+    }
+}
+...
+?>
 ~~~

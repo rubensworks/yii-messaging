@@ -12,8 +12,6 @@
 class MessagingModule extends CWebModule
 {
 	public $userModel;
-	public $getNameMethod;
-	public $isOnlineMethod;
 
         public $user;
 
@@ -21,8 +19,8 @@ class MessagingModule extends CWebModule
 
 	public function init()
 	{
-            //TMP
-            $this->user=User::model()->findByPk(3);
+            //$this->user=User::model()->findByPk(3);
+            $this->user=Yii::app()->user;
             
             $this->defaultController='message';
 
@@ -30,14 +28,6 @@ class MessagingModule extends CWebModule
                 throw new Exception(MessagingModule::t("Property Messaging::{userModel} not defined", array('{userModel}' => $this->userModel)));
             if (!class_exists($this->userModel))
                 throw new Exception(MessagingModule::t("Class {userModel} not defined", array('{userModel}' => $this->userModel)));
-
-            foreach (array('getNameMethod', 'isOnlineMethod') as $methodName) {
-                    if (!$this->$methodName)
-                            throw new Exception(MessageModule::t("Property Messaging::{methodName} not defined", array('{methodName}' => $methodName)));
-
-                    if (!method_exists($this->userModel, $this->$methodName))
-                            throw new Exception(MessageModule::t("Method {userModel}::{methodName} not defined", array('{userModel}' => $this->userModel, '{methodName}' => $this->$methodName)));
-            }
 
             $this->setImport(array(
                     'messaging.models.*',
@@ -128,7 +118,7 @@ class MessagingModule extends CWebModule
          */
         public function openGroup($ids) {
             if(in_array($this->user->id,$ids))//You can not open a chat with yourself!
-                return false;
+                throw new Exception(MessagingModule::t("You can't open a group with yourself.", array()));
             if(empty($ids) || !$ids)
                 return null;
             $group=$this->groupExists($ids);
@@ -257,6 +247,8 @@ class MessagingModule extends CWebModule
          * @param type $content message to be sent
          */
         public function sendMessage($group, $content) {
+            if(!$this->hasGroup($group))
+                throw new Exception(MessagingModule::t("User is not present in this group.", array()));
             $message=new Message();
             $message->grp=$group;
             $message->content=$content;
@@ -270,6 +262,31 @@ class MessagingModule extends CWebModule
                 $this->setUnread($user->user);
                 $this->setUnreadGroup($user->user,$group);
             }
+        }
+        
+        /**
+         * Gets your messages by group
+         * @param type $group 
+         */
+        public function getMessages($group) {
+            if(!$this->hasGroup($group))
+                throw new Exception(MessagingModule::t("User is not present in this group.", array()));
+            $criteria = new CDbCriteria;
+            $criteria->condition="grp = :group";
+            $criteria->params=array(":group"=>$group);
+            $criteria->order="created DESC";
+            $messages=Message::model()->findAll($criteria);
+            return $messages;
+        }
+        
+        /**
+         * Updates unread status of a group
+         * @param type $group 
+         */
+        public function readGroup($group) {
+            $this->setUnreadGroup($this->user->id,$group,false);
+            if(sizeof($this->getUnreadGroups())==0)
+                $this-setUnread($this->user->id,false);
         }
 
 }
