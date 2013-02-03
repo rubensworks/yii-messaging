@@ -3,9 +3,8 @@ Messaging
 
 A Yii plugin that allows you to easily create a messaging/chat functionality
 into your existing User-based application.
-The controller, widget and view are included, but not sufficiently tested. So
-it's not advised to use these, but they can be used as reference to build
-something with. These might get updated sometime, or not, we'll see...
+The base controller, widget and view are not included, they aren't sufficiently
+tested. These might get updated sometime, or not, we'll see...
 
 Installation
 ------------
