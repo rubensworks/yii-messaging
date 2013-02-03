@@ -28,7 +28,8 @@ return array(
 ...
 ?>
 ~~~
-The only requirement for the User model is that is has a valid 'id' field that is in fact unique.
+The only requirement for the User model is that is has a valid 'id' field that
+is in fact unique. ~Yii::app()->user~ must also hold the current user model.
 
 Example code
 ------------
