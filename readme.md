@@ -9,6 +9,7 @@ tested. These might get updated sometime, or not, we'll see...
 Installation
 ------------
 
+You'll first need to install the MySQL tables included in the `data` folder.
 Unpack to `protected/extensions/`. Add the following to your `protected/config/main.php`:
 
 ~~~
@@ -29,7 +30,7 @@ return array(
 ?>
 ~~~
 The only requirement for the User model is that is has a valid 'id' field that
-is in fact unique. ~Yii::app()->user~ must also hold the current user model.
+is in fact unique. `Yii::app()->user` must also hold the current user model.
 
 Example code
 ------------
